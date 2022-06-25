@@ -9,7 +9,6 @@ export default class Order {
     this._id = id;
     this._customerId = customerId;
     this._items = items;
-    this._total = this.total();
     this.validate();
   }
 
@@ -35,15 +34,22 @@ export default class Order {
     if (this._items.length === 0) {
       throw new Error("Items are required");
     }
-
     if (this._items.some((item) => item.quantity <= 0)) {
       throw new Error("Quantity must be greater than 0");
     }
+
+    this._total = this.total();
 
     return true;
   }
 
   total(): number {
     return this._items.reduce((acc, item) => acc + item.price, 0);
+  }
+
+  addItem(item: OrderItem) {
+    this._items.push(item);
+    this.validate;
+    this._items.forEach((item) => "domainitems:" + console.log(item.name));
   }
 }
