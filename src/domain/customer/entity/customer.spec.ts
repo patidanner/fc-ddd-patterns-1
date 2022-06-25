@@ -60,4 +60,15 @@ describe("Customer unit tests", () => {
     customer.addRewardPoints(10);
     expect(customer.rewardPoints).toBe(20);
   });
+
+  it("should send a customer created event and address changed event", () => {
+    let customer = new Customer("1", "Customer 1");
+    const spyEventHandler = jest.spyOn(customer.eventHandler, "handle");
+
+    const address = new Address("Street 1" ,222 ,"12345-60", "City A");
+    customer.changeAddress(address);
+
+    expect(spyEventHandler).toHaveBeenCalled();
+
+  });
 });

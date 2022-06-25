@@ -1,5 +1,8 @@
 import SendEmailWhenProductIsCreatedHandler from "../../product/event/handler/send-email-when-product-is-created.handler";
+import EnviaConsoleLog1Handler from "../../customer/event/handler/send-log-when-customer-is-created1.handler";
+import EnviaConsoleLog2Handler from "../../customer/event/handler/send-log-when-customer-is-created2.handler";
 import ProductCreatedEvent from "../../product/event/product-created.event";
+import CustomerCreatedEvent from "../../customer/event/customer-created.event";
 import EventDispatcher from "./event-dispatcher";
 
 describe("Domain events tests", () => {
@@ -78,5 +81,30 @@ describe("Domain events tests", () => {
     eventDispatcher.notify(productCreatedEvent);
 
     expect(spyEventHandler).toHaveBeenCalled();
+  });
+
+  it("should notify all customer event handlers", () => {
+    const eventDispatcher = new EventDispatcher();
+    const eventHandler = new EnviaConsoleLog1Handler();
+    const eventHandler2 = new EnviaConsoleLog2Handler();
+    const spyEventHandler = jest.spyOn(eventHandler, "handle");
+    const spyEventHandler2 = jest.spyOn(eventHandler2, "handle");
+
+    eventDispatcher.register("CustomerCreatedEvent", eventHandler);
+    eventDispatcher.register("CustomerCreatedEvent", eventHandler2);
+
+    expect(
+      eventDispatcher.getEventHandlers["CustomerCreatedEvent"][0]
+    ).toMatchObject(eventHandler);
+
+    const customerCreatedEvent = new CustomerCreatedEvent({
+      name: "New Customer",
+      address: "address line 1, number, city, zip code",
+    });
+
+    eventDispatcher.notify(customerCreatedEvent);
+
+    expect(spyEventHandler).toHaveBeenCalled();
+    expect(spyEventHandler2).toHaveBeenCalled();
   });
 });

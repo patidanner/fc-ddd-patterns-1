@@ -2,8 +2,21 @@ import Customer from "../../../../domain/customer/entity/customer";
 import Address from "../../../../domain/customer/value-object/address";
 import CustomerRepositoryInterface from "../../../../domain/customer/repository/customer-repository.interface";
 import CustomerModel from "./customer.model";
+import EnviaConsoleLog1Handler from "../../../../domain/customer/event/handler/send-log-when-customer-is-created1.handler";
+import EnviaConsoleLog2Handler from "../../../../domain/customer/event/handler/send-log-when-customer-is-created2.handler";
+import EventDispatcher from "../../../../domain/@shared/event/event-dispatcher";
+import CustomerCreatedEvent from "../../../../domain/customer/event/customer-created.event";
 
 export default class CustomerRepository implements CustomerRepositoryInterface {
+  public eventHandler1 = new EnviaConsoleLog1Handler();
+  public eventHandler2 = new EnviaConsoleLog2Handler();
+  public eventDispatcher = new EventDispatcher();
+
+  constructor(){
+    this.eventDispatcher.register("CustomerCreatedEvent", this.eventHandler1);
+    this.eventDispatcher.register("CustomerCreatedEvent", this.eventHandler2);
+  }
+  
   async create(entity: Customer): Promise<void> {
     await CustomerModel.create({
       id: entity.id,
@@ -15,6 +28,12 @@ export default class CustomerRepository implements CustomerRepositoryInterface {
       active: entity.isActive(),
       rewardPoints: entity.rewardPoints,
     });
+        
+    const customerCreatedEvent = new CustomerCreatedEvent({
+      name: entity.name,
+      id: entity.id
+    });
+    this.eventDispatcher.notify(customerCreatedEvent)
   }
 
   async update(entity: Customer): Promise<void> {

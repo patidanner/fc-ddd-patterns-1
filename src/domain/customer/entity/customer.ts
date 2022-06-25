@@ -1,3 +1,6 @@
+import EventDispatcher from "../../@shared/event/event-dispatcher";
+import CustomerChangedAddressEvent from "../event/customer-changed-address.event";
+import EnviaConsoleLogHandler from "../event/handler/send-log-when-customer-is-created.handler";
 import Address from "../value-object/address";
 
 export default class Customer {
@@ -6,10 +9,13 @@ export default class Customer {
   private _address!: Address;
   private _active: boolean = false;
   private _rewardPoints: number = 0;
+  public eventDispatcher = new EventDispatcher();
+  public eventHandler = new EnviaConsoleLogHandler();
 
-  constructor(id: string, name: string) {
+  constructor(id: string, name: string ) {
     this._id = id;
     this._name = name;
+    this.eventDispatcher.register("CustomerChangedAddressEvent", this.eventHandler);
     this.validate();
   }
 
@@ -45,6 +51,12 @@ export default class Customer {
   
   changeAddress(address: Address) {
     this._address = address;
+    const customerChangedAddressEvent = new CustomerChangedAddressEvent({
+      name: this._name,
+      id: this._id,
+      newAddress: this._address
+    });
+    this.eventDispatcher.notify(customerChangedAddressEvent)
   }
 
   isActive(): boolean {

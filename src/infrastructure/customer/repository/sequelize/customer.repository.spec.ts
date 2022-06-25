@@ -25,6 +25,10 @@ describe("Customer repository test", () => {
 
   it("should create a customer", async () => {
     const customerRepository = new CustomerRepository();
+
+    const spyEventHandler1 = jest.spyOn(customerRepository.eventHandler1, "handle");
+    const spyEventHandler2 = jest.spyOn(customerRepository.eventHandler2, "handle");
+
     const customer = new Customer("123", "Customer 1");
     const address = new Address("Street 1", 1, "Zipcode 1", "City 1");
     customer.Address = address;
@@ -42,6 +46,9 @@ describe("Customer repository test", () => {
       zipcode: address.zip,
       city: address.city,
     });
+
+    expect(spyEventHandler1).toHaveBeenCalled();
+    expect(spyEventHandler2).toHaveBeenCalled();
   });
 
   it("should update a customer", async () => {
